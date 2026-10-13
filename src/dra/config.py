@@ -47,6 +47,13 @@ class Settings(BaseSettings):
     researcher_fetch_topk: int = 5  # 每个子问题抓取页面数（从 3 扩到 5 提升召回）
     researcher_max_tokens_per_source: int = 4000  # 单来源进 context 的截断上限（token 级）
 
+    # 人工介入（human-in-the-loop）：verifier 检出缺乏引用支持的结论时暂停，等人确认。
+    # 默认关闭——eval / 批量跑必须全自动；开启后需要 checkpointer 支持断点恢复。
+    dra_human_review: bool = False
+    dra_checkpoint_path: str = "./data/checkpoints.db"
+    # 触发人工确认的未支持结论数下限（0 表示只要有非 supported 结论就暂停）
+    human_review_min_risky: int = 1
+
     # 检索增强（RAG）：抓取页面 → 切分 → BM25+向量双路召回 → RRF 融合 → 可选 rerank
     # 选块进 context 而非整页灌入，降噪同时省 token；任一步不可用都自动降级
     rag_enabled: bool = True
@@ -59,6 +66,12 @@ class Settings(BaseSettings):
     rag_local_files_only: bool = True
     # 向量召回的相关性下限：向量检索没有"零命中"概念，不设阈值会把无关块灌进证据
     rag_vector_min_score: float = 0.45
+
+    # MCP 工具层：接入外部 MCP server（stdio 传输，server 作为子进程）。
+    # 默认不配置 → 不启动任何子进程、零额外开销；配置 mcp_search_tool 后，
+    # 该工具会替代内置检索源进入 researcher 主链路。
+    dra_mcp_servers: str = ""       # JSON 数组，格式见 tools/mcp_client.parse_mcp_servers
+    dra_mcp_search_tool: str = ""   # 充当检索源的 MCP 工具全名，如 "myserver.web_search"
 
     # 存储
     dra_db_path: str = "./data/research.db"

@@ -14,7 +14,7 @@ from fastapi import FastAPI
 from fastapi.responses import FileResponse, StreamingResponse
 from pydantic import BaseModel
 
-from ..graph.builder import ResearchRuntime
+from ..graph.builder import ResearchRuntime, extract_interrupt
 from ..provider.anthropic import AnthropicProvider
 from ..provider.base import LLMProvider
 from ..provider.modelscope import OpenAICompatibleProvider
@@ -26,6 +26,15 @@ class ResearchRequest(BaseModel):
     model: str | None = None       # 覆盖全部节点的模型名（含环境默认时省略）
     base_url: str | None = None    # 自定义供应商 base_url（OpenAI 兼容或 Anthropic）
     api_key: str | None = None     # 自定义供应商 api_key
+
+
+class ResumeRequest(BaseModel):
+    """从人工确认断点恢复。run_id 为触发 interrupt 的那次运行。"""
+    run_id: str
+    action: str = "accept"         # accept / redo
+    model: str | None = None
+    base_url: str | None = None
+    api_key: str | None = None
 
 
 # 前端可选的供应商预设（base_url + 默认模型）。用户也可自由填写自定义 base_url/api_key。
@@ -86,6 +95,7 @@ def create_app(runtime: ResearchRuntime | None = None) -> FastAPI:
             "default_base_url": s.dra_base_url,
             "default_model": s.dra_model_planner,
             "thinking_enabled": s.dra_thinking_enabled,
+            "human_review": s.dra_human_review,
         }
 
     @app.post("/research")
@@ -96,11 +106,42 @@ def create_app(runtime: ResearchRuntime | None = None) -> FastAPI:
         state, trace = await rt.run(req.question,
                                     model_overrides=_model_overrides(req.model),
                                     provider=provider)
+        payload = extract_interrupt(state)
         return {
             "run_id": trace.run_id,
             "report": state.get("draft", state.get("final_report", "")),
             "verify_report": state.get("verify_report", []),
             "budget_exhausted": trace.budget_exhausted,
+            "tokens": trace.total_tokens,
+            "latency_s": round(trace.latency_s, 1),
+            # 人工确认：paused=true 时用 /research/resume 带 action 继续
+            "paused": payload is not None,
+            "interrupt": (payload or {}).get("value"),
+            "human_decision": state.get("human_decision"),
+        }
+
+    @app.post("/research/resume")
+    async def research_resume(req: ResumeRequest) -> dict:
+        """从人工确认断点恢复。resume 本身不产生新的 LLM 调用（除非人造了 redo）。"""
+        provider = _build_provider(req.base_url, req.api_key,
+                                   default_provider=rt._provider,
+                                   thinking=rt.settings.dra_thinking_enabled)
+        try:
+            state, trace = await rt.resume(req.run_id, {"action": req.action},
+                                           model_overrides=_model_overrides(req.model),
+                                           provider=provider)
+        except RuntimeError as e:
+            return {"ok": False, "error": str(e)}
+
+        payload = extract_interrupt(state)
+        return {
+            "ok": True,
+            "run_id": trace.run_id,
+            "report": state.get("draft", state.get("final_report", "")),
+            "verify_report": state.get("verify_report", []),
+            "human_decision": state.get("human_decision"),
+            "paused": payload is not None,      # redo 后可能再次触发确认
+            "interrupt": (payload or {}).get("value"),
             "tokens": trace.total_tokens,
             "latency_s": round(trace.latency_s, 1),
         }

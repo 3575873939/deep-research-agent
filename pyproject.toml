@@ -1,7 +1,7 @@
 [project]
 name = "deep-research-agent"
 version = "0.1.0"
-description = "Deep Research Agent: LangGraph + MCP tools + hybrid RAG + verifiable citations"
+description = "Deep Research Agent: LangGraph state machine + verifiable citations + hybrid RAG + MCP tool layer"
 requires-python = ">=3.11"
 dependencies = [
     "langgraph>=0.2",
@@ -19,10 +19,14 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-# 向量检索与 rerank 为可选：BM25-only 模式也能跑通全链路
+# 以下均为可选增强：任一缺失都会自动降级，主链路始终可跑
+# 向量召回（缺失 → 退化为 BM25-only）
 vec = [
-    "chromadb>=0.5",
     "sentence-transformers>=3.0",
+]
+# MCP 工具层（缺失 → 仅用内置 search/fetch）
+mcp = [
+    "mcp>=1.0",
 ]
 eval = [
     "pytest>=8.0",

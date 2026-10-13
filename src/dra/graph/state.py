@@ -41,6 +41,7 @@ class ResearchState(TypedDict, total=False):
     draft: str
     verify_report: list[Verification]
     verify_round: int            # 打回重查轮次，上限 verifier_max_rounds
+    human_decision: str          # 人工确认结果：auto（未启用/无风险）/ accept / redo
     budget_exhausted: bool
     final_report: str
     error: str

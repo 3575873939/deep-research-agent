@@ -282,6 +282,26 @@
     .input-wrap button { padding: 12px; }
     .model-bar { flex-wrap: wrap; }
   }
+
+  /* ===== HUMAN REVIEW ===== */
+  .card[data-type="interrupt"] { border-left: 3px solid var(--accent); }
+  .card[data-type="interrupt"] .card-header .icon { background: var(--accent-dim); color: var(--accent); }
+  .interrupt-msg { font-size: 14px; color: var(--text); margin-bottom: 14px; }
+  .risky-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+  .risky-item { display: flex; align-items: flex-start; gap: 8px; font-size: 12.5px;
+    color: var(--text-secondary); padding: 8px 10px; background: var(--bg);
+    border: 1px solid var(--border); border-radius: 6px; line-height: 1.5; }
+  .risky-item .cite { font-family: var(--mono); font-size: 11px; color: var(--blue); flex-shrink: 0; }
+  .risky-item .verdict { flex-shrink: 0; font-size: 10px; padding: 1px 6px; border-radius: 8px;
+    background: rgba(239,68,68,.15); color: var(--red); text-transform: uppercase; }
+  .interrupt-actions { display: flex; gap: 10px; }
+  .interrupt-actions button { padding: 9px 18px; border-radius: 8px; font-size: 13.5px;
+    font-weight: 600; cursor: pointer; border: 1px solid transparent; transition: filter .2s; }
+  .interrupt-actions button:hover { filter: brightness(1.15); }
+  .interrupt-actions button:disabled { opacity: .5; cursor: default; }
+  .interrupt-actions .accept { background: var(--green); color: #06210f; }
+  .interrupt-actions .redo { background: transparent; color: var(--text-secondary);
+    border-color: var(--border-strong); }
 </style>
 </head>
 <body>
@@ -547,15 +567,79 @@ function handleEvent(block) {
         <div class="bar" style="width:${up}%;background:var(--red)"></div>
       </div>`;
   } else if (event === 'done') {
+    if (d.paused) {           // 暂停待人工确认：报告在 resume 返回后再渲染
+      setStatus('等待人工确认'); $('btn').disabled = false; return;
+    }
     progressStep('p-verify','done'); setStatus('完成');
     if (d.report) {
       const body = createCard('report','研究报告','&#x1F4C4;');
       body.innerHTML = renderReport(d.report) + '<div class="report-meta">tokens: '+d.tokens.toLocaleString()+(d.budget_exhausted?' · 预算截断':'')+'</div>';
     }
+  } else if (event === 'interrupt') {
+    showInterruptCard(d);
   } else if (event === 'error') {
     setStatus('');
     const body = createCard('error','错误','&#x26A0;');
     body.innerHTML = '<p style="color:var(--red);font-size:14px;">'+esc(d.error||'unknown')+'</p>';
+  }
+}
+
+/* ===== 人工确认（human-in-the-loop）===== */
+function providerPayload(extra) {
+  return Object.assign({}, extra, {
+    model: $('customModel').value.trim() || undefined,
+    base_url: $('customBase').value.trim() || undefined,
+    api_key: $('customKey').value.trim() || undefined,
+  });
+}
+
+function showInterruptCard(d) {
+  setStatus('等待人工确认');
+  const info = d.value || {};
+  const body = createCard('interrupt','人工确认','&#x270B;');
+  const claims = (info.risky_claims || []).map(c =>
+    '<div class="risky-item">'
+    + '<span class="verdict">' + esc(c.verdict || '') + '</span>'
+    + '<span class="cite">' + (c.citation_id != null ? 'C' + c.citation_id : '无引用') + '</span>'
+    + '<span>' + esc(c.claim || '') + '</span></div>').join('');
+  body.innerHTML =
+    '<p class="interrupt-msg">' + esc(info.message || '需要人工确认') + '</p>'
+    + (claims ? '<div class="risky-list">' + claims + '</div>' : '')
+    + '<div class="interrupt-actions">'
+    + '<button class="accept" id="irAccept">接受当前报告</button>'
+    + '<button class="redo" id="irRedo">打回重新调研</button></div>'
+    + '<div id="irResult" style="margin-top:12px;font-size:13px;color:var(--text-muted)"></div>';
+  $('irAccept').onclick = () => sendResume(d.run_id, 'accept');
+  $('irRedo').onclick = () => sendResume(d.run_id, 'redo');
+}
+
+async function sendResume(runId, action) {
+  const out = $('irResult');
+  if (out) out.textContent = action === 'redo' ? '已打回，重新调研中…' : '处理中…';
+  const acceptBtn = $('irAccept'), redoBtn = $('irRedo');
+  if (acceptBtn) acceptBtn.disabled = true;
+  if (redoBtn) redoBtn.disabled = true;
+  try {
+    const resp = await fetch('/research/resume', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(providerPayload({ run_id: runId, action: action }))
+    });
+    const d = await resp.json();
+    if (!d.ok) {
+      if (out) out.innerHTML = '<span style="color:var(--red)">' + esc(d.error || '恢复失败') + '</span>';
+      return;
+    }
+    if (out) out.remove();
+    if (d.paused) { showInterruptCard({ run_id: d.run_id, value: d.interrupt }); return; }
+    setStatus('完成'); progressStep('p-verify','done');
+    if (d.report) {
+      const body = createCard('report','研究报告','&#x1F4C4;');
+      body.innerHTML = renderReport(d.report)
+        + '<div class="report-meta">tokens: ' + (d.tokens || 0).toLocaleString()
+        + ' · 人工决策: ' + esc(d.human_decision || '-') + '</div>';
+    }
+  } catch (e) {
+    if (out) out.innerHTML = '<span style="color:var(--red)">' + esc(String(e)) + '</span>';
   }
 }
 

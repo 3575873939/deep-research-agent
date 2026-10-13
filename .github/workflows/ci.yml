@@ -1,0 +1,28 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          # 刻意不装 sentence-transformers：让 CI 覆盖 BM25-only 降级路径
+          pip install -e ".[eval,mcp]"
+
+      - name: Run tests
+        env:
+          PYTHONPATH: src
+        run: pytest tests -q
