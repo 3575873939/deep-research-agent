@@ -22,6 +22,11 @@ jobs:
           # 刻意不装 sentence-transformers：让 CI 覆盖 BM25-only 降级路径
           pip install -e ".[eval,mcp]"
 
+      - name: Show key versions
+        run: |
+          python -c "import sys; print('python', sys.version)"
+          pip list | grep -Ei "mcp|langgraph|pytest|openai|pydantic|rank-bm25" || true
+
       - name: Run tests
         env:
           PYTHONPATH: src

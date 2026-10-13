@@ -6,7 +6,8 @@ requires-python = ">=3.11"
 dependencies = [
     "langgraph>=0.2",
     "langgraph-checkpoint-sqlite>=2.0",
-    "openai>=1.50",
+    # 上界固定在 2.0：openai 3.x 是跨大版本（本地验证的是 1.x）
+    "openai>=1.50,<2.0",
     "httpx>=0.27",
     "fastapi>=0.115",
     "uvicorn>=0.30",
@@ -25,8 +26,10 @@ vec = [
     "sentence-transformers>=3.0",
 ]
 # MCP 工具层（缺失 → 仅用内置 search/fetch）
+# 上界固定在 2.0：mcp 2.x 是大版本升级，client API 有变动；
+# 本项目适配并验证的是 1.x，不设上界会让 CI/用户装到未验证的 2.x
 mcp = [
-    "mcp>=1.0",
+    "mcp>=1.0,<2.0",
 ]
 eval = [
     "pytest>=8.0",
