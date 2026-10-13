@@ -9,6 +9,8 @@
 
 **别人交 demo，你交 demo + 评估报告**——每个模块都留量化数据。
 
+![调研流程](docs/images/flow.png)
+
 ---
 
 ## 一句话面试叙事
@@ -137,6 +139,8 @@ pip install -e ".[mcp]"    # MCP 工具层（缺失 → 仅用内置 search/fetc
 ## 人工介入（human-in-the-loop）
 
 当 verifier 检出「缺乏引用支持」的结论时，流程可在报告定稿前**暂停等人确认**——接受当前报告，或打回重新调研。
+
+![人工确认](docs/images/interrupt.png)
 
 实现要点：
 
