@@ -1,0 +1,30 @@
+{"qid": "t01", "category": "技术", "question": "LangGraph 的 interrupt() 和 checkpoint 机制分别解决什么问题？与 LangChain Chain 的本质区别是什么？", "gold_urls": ["langchain-ai.github.io/langgraph", "github.com/langchain-ai/langgraph"]}
+{"qid": "t02", "category": "技术", "question": "BM25 与向量检索在专有名词召回上的差异原因是什么？RRF 融合为什么不需要调权重？", "gold_urls": ["en.wikipedia.org/wiki/Okapi_BM25"]}
+{"qid": "t03", "category": "技术", "question": "MCP（Model Context Protocol）的 server/client 架构是怎样的？与 function calling 的关系是什么？", "gold_urls": ["modelcontextprotocol.io"]}
+{"qid": "t04", "category": "技术", "question": "SQLite 的 WAL 模式与默认 rollback journal 在并发读写上有什么区别？什么场景该开 WAL？", "gold_urls": ["sqlite.org/wal.html"]}
+{"qid": "t05", "category": "技术", "question": "FastAPI 的 SSE（Server-Sent Events）与 WebSocket 在单向流式输出场景下各有什么优劣？为什么 LLM 流式接口多用 SSE？", "gold_urls": ["developer.mozilla.org", "html.spec.whatwg.org"]}
+{"qid": "t06", "category": "技术", "question": "cross-encoder reranker（如 bge-reranker）与 bi-encoder 向量检索在计算成本和精度上的权衡是什么？为什么通常 rerank 只放最后一级？", "gold_urls": ["sbert.net"]}
+{"qid": "t07", "category": "技术", "question": "Python 的 asyncio.wait_for 超时控制有什么已知的坑？与 asyncio.timeout（3.11+）的区别是什么？", "gold_urls": ["docs.python.org"]}
+{"qid": "t08", "category": "技术", "question": "prompt injection 的主要攻击手法有哪些分类？间接注入（indirect injection）为什么比直接注入更难防？", "gold_urls": ["owasp.org", "simonwillison.net"]}
+{"qid": "t09", "category": "技术", "question": "tiktoken 的 BPE tokenizer 对中英文混合文本的编码效率有什么差异？这对 LLM 应用的成本估算有什么影响？", "gold_urls": ["github.com/openai/tiktoken"]}
+{"qid": "t10", "category": "技术", "question": "LangGraph 的 StateGraph 中 conditional edges 与 Command 对象两种路由方式有什么区别？各自的适用场景是什么？", "gold_urls": ["langchain-ai.github.io/langgraph"]}
+{"qid": "p01", "category": "产品对比", "question": "2026 年 Claude Opus、GPT-5 系、Gemini Pro 在 agentic 工具调用上的公开基准表现如何对比？", "gold_urls": ["anthropic.com", "openai.com"]}
+{"qid": "p02", "category": "产品对比", "question": "Tavily、Exa、SerpAPI 三个搜索 API 在价格、返回结构、语义搜索能力上有什么差异？", "gold_urls": ["tavily.com", "exa.ai"]}
+{"qid": "p03", "category": "产品对比", "question": "Chroma、FAISS、Qdrant 三个向量数据库在嵌入规模 100 万以内的本地开发场景下如何选型？", "gold_urls": ["github.com/chroma-core/chroma", "github.com/facebookresearch/faiss", "qdrant.tech"]}
+{"qid": "p04", "category": "产品对比", "question": "LangSmith、Langfuse、自研 JSONL trace 三种 LLM 观测方案在成本、数据主权、上手成本上如何对比？", "gold_urls": ["langfuse.com", "smith.langchain.com"]}
+{"qid": "p05", "category": "产品对比", "question": "Playwright、Puppeteer、Selenium 在网页自动化上的差异是什么？AI Agent 浏览器工具为什么普遍选 Playwright？", "gold_urls": ["playwright.dev"]}
+{"qid": "p06", "category": "产品对比", "question": "ModelScope 与 Hugging Face 在模型托管、推理 API、国内可用性上的差异是什么？", "gold_urls": ["modelscope.cn", "huggingface.co"]}
+{"qid": "p07", "category": "产品对比", "question": "DeepSeek 官方 API、ModelScope、阿里云百炼三个 Qwen/DeepSeek 模型调用通道在价格和限流上如何对比？", "gold_urls": ["platform.deepseek.com", "bailian.console.aliyun.com"]}
+{"qid": "p08", "category": "产品对比", "question": "sentence-transformers 的 bge 系列与 m3e 系列中文嵌入模型在检索任务上的表现差异是什么？", "gold_urls": ["huggingface.co/BAAI", "sbert.net"]}
+{"qid": "p09", "category": "产品对比", "question": "uvicorn、hypercorn、gunicorn 作为 FastAPI 的 ASGI 服务器在生产部署上怎么选？", "gold_urls": ["uvicorn.dev", "fastapi.tiangolo.com"]}
+{"qid": "p10", "category": "产品对比", "question": "Ragas、DeepEval、自建 eval harness 三种 RAG/Agent 评估框架的适用边界是什么？", "gold_urls": ["docs.ragas.io", "deepeval.com"]}
+{"qid": "s01", "category": "时效性", "question": "ModelScope 的 openai_compatible 接口当前支持哪些模型系列？限流策略是什么？", "gold_urls": ["modelscope.cn"]}
+{"qid": "s02", "category": "时效性", "question": "Python 3.13 的 free-threading（PEP 703）当前生产可用性如何？有哪些已知的 C 扩展兼容问题？", "gold_urls": ["python.org", "peps.python.org"]}
+{"qid": "s03", "category": "时效性", "question": "Tavily API 当前的免费额度是多少？2026 年的定价档位有什么变化？", "gold_urls": ["tavily.com"]}
+{"qid": "s04", "category": "时效性", "question": "LangGraph 当前最新稳定版本的 API 与 0.2 版本相比有哪些 breaking changes？", "gold_urls": ["github.com/langchain-ai/langgraph", "changelog.langchain.com"]}
+{"qid": "s05", "category": "时效性", "question": "Qwen 系列当前（2026 年）最新开源模型的上下文长度和 agentic 能力如何？", "gold_urls": ["qwen.ai", "github.com/QwenLM"]}
+{"qid": "s06", "category": "时效性", "question": "MCP 协议当前版本相比 2024 年首版新增了哪些能力？生态里有哪些主流 MCP server？", "gold_urls": ["modelcontextprotocol.io", "github.com/modelcontextprotocol"]}
+{"qid": "s07", "category": "时效性", "question": "SWE-bench Verified 排行榜当前前三名是哪些模型？分数分别是多少？", "gold_urls": ["swebench.com"]}
+{"qid": "s08", "category": "时效性", "question": "Chroma 当前版本的持久化 API 与 0.4 时代有什么区别？PersistentClient 的用法变了吗？", "gold_urls": ["docs.trychroma.com", "github.com/chroma-core/chroma"]}
+{"qid": "s09", "category": "时效性", "question": "DeepSeek 当前最新的模型版本是什么？API 定价和上下文窗口是多少？", "gold_urls": ["platform.deepseek.com", "api-docs.deepseek.com"]}
+{"qid": "s10", "category": "时效性", "question": "2026 年国内大模型 API（阿里百炼、DeepSeek、智谱、月之暗面）的免费额度政策各是什么？", "gold_urls": ["bailian.console.aliyun.com", "platform.deepseek.com", "bigmodel.cn", "platform.moonshot.cn"]}

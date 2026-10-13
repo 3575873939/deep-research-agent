@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><title>test</title></head>
+<body>
+<h1>Deep Research Agent - Test</h1>
+<input id="q" placeholder="输入问题" onkeydown="if(event.key==='Enter') go()" />
+<button onclick="go()">开始调研</button>
+<div id="out"></div>
+<script>
+async function go() {
+  const q = document.getElementById('q').value;
+  if (!q) return;
+  document.getElementById('out').innerHTML = '<p>请求发送中...</p>';
+  try {
+    const resp = await fetch('/research/stream', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({question: q})
+    });
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const reader = resp.body.getReader();
+    const decoder = new TextDecoder();
+    let buf = '';
+    while (true) {
+      const {done, value} = await reader.read();
+      if (done) break;
+      buf += decoder.decode(value, {stream:true});
+      let idx;
+      while ((idx = buf.indexOf('\n\n')) >= 0) {
+        const block = buf.slice(0, idx); buf = buf.slice(idx+2);
+        let ev = '', dt = '';
+        for (const line of block.split('\n')) {
+          if (line.startsWith('event:')) ev = line.slice(6).trim();
+          else if (line.startsWith('data:')) dt = line.slice(5).trim();
+        }
+        if (ev && dt) {
+          const el = document.createElement('p');
+          el.textContent = `[${ev}] ${dt.slice(0, 120)}`;
+          document.getElementById('out').appendChild(el);
+        }
+      }
+    }
+    const el = document.createElement('p');
+    el.textContent = '--- 结束 ---';
+    document.getElementById('out').appendChild(el);
+  } catch (e) {
+    document.getElementById('out').innerHTML = '<p style="color:red">出错: ' + e.message + '</p>';
+  }
+}
+</script>
+</body>
+</html>
