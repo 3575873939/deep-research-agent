@@ -1,6 +1,6 @@
 # Deep Research Agent
 
-[![CI](https://github.com/3575873939/deep-research-agent/actions/workflows/ci.yml/badge.svg)](https://github.com/3575873939/deep-research-agent/actions/workflows/ci.yml)
+[![CI](https://github.com/3575873939/deep-research-agent/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/3575873939/deep-research-agent/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/python-3.11%2B-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Tests](https://img.shields.io/badge/tests-43%20passed-brightgreen)
